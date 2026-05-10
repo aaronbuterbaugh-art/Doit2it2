@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#1a1035" />
+  <title>Doit2it — AI Home Improvement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #e8d5a3;
+      --dk-gold: #c9a84c;
+      --bg: #0f0c29;
+      --bg2: #1a1035;
+      --card: rgba(255,255,255,0.045);
+      --border: rgba(255,255,255,0.09);
+      --text: #f0ece0;
+      --muted: rgba(240,236,224,0.5);
+      --green: #4ade80;
+      --yellow: #fbbf24;
+      --red: #f87171;
+    }
+
+    body {
+      background: linear-gradient(160deg, #0f0c29 0%, #1e1a45 50%, #12102a 100%);
+      min-height: 100vh;
+      font-family: 'Lato', sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3 { font-family: 'Playfair Display', serif; }
+
+    /* HEADER */
+    .header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,12,41,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(232,213,163,0.12);
+      padding: 14px 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .header-logo { font-size: 28px; }
+    .header-title { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--gold); }
+    .header-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    .back-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 8px; padding: 7px 14px;
+      color: var(--muted); font-size: 13px; cursor: pointer;
+      font-family: 'Lato', sans-serif;
+    }
+
+    /* MAIN */
+    .main { max-width: 680px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    /* INPUT CARD */
+    .input-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(232,213,163,0.16);
+      border-radius: 20px; padding: 20px; margin-bottom: 20px;
+    }
+    .section-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px;
+      color: rgba(255,255,255,0.35); margin-bottom: 8px;
+    }
+
+    /* PHOTO UPLOAD */
+    .upload-zone {
+      position: relative;
+      border: 2px dashed rgba(232,213,163,0.22);
+      border-radius: 12px; overflow: hidden;
+      min-height: 80px; display: flex;
+      align-items: center; justify-content: center;
+      flex-direction: column; gap: 4px;
+      cursor: pointer; margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .upload-zone:active { border-color: rgba(232,213,163,0.5); }
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%; z-index: 2;
+    }
+    .upload-zone img {
+      width: 100%; max-height: 220px; object-fit: cover; display: block;
+    }
+    .upload-icon { font-size: 24px; pointer-events: none; }
+    .upload-text { font-size: 13px; color: var(--muted); pointer-events: none; }
+    .upload-badge {
+      position: absolute; top: 8px; right: 8px; z-index: 3;
+      background: rgba(0,0,0,0.65); border-radius: 6px;
+      padding: 3px 10px; font-size: 11px; color: var(--gold);
+    }
+
+    /* TEXTAREA */
+    textarea {
+      width: 100%; background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(232,213,163,0.2);
+      border-radius: 10px; padding: 12px 14px;
+      color: var(--text); font-size: 15px;
+      font-family: 'Lato', sans-serif;
+      line-height: 1.6; resize: vertical; outline: none;
+      -webkit-appearance: none;
+    }
+    textarea::placeholder { color: rgba(255,255,255,0.28); }
+    textarea:focus { border-color: rgba(232,213,163,0.4); }
+
+    /* BUTTON */
+    .btn-generate {
+      margin-top: 12px; width: 100%;
+      background: linear-gradient(135deg, var(--gold), var(--dk-gold));
+      color: #1a1000; border: none; border-radius: 12px;
+      padding: 16px; font-family: 'Playfair Display', serif;
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s; -webkit-appearance: none;
+    }
+    .btn-generate:disabled {
+      background: rgba(232,213,163,0.12);
+      color: rgba(255,255,255,0.2); cursor: not-allowed;
+    }
+    .btn-generate:active:not(:disabled) { opacity: 0.85; }
+
+    /* ALERTS */
+    .alert {
+      border-radius: 12px; padding: 14px 16px;
+      margin-bottom: 18px; font-size: 13px; line-height: 1.65;
+    }
+    .alert-error { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.28); color: var(--red); }
+    .alert-info { background: rgba(251,191,36,0.07); border: 1px solid rgba(251,191,36,0.22); color: var(--yellow); }
+
+    /* LOADING */
+    .loading { text-align: center; padding: 52px 0; }
+    .loading-icon { font-size: 48px; display: block; margin-bottom: 14px; animation: pulse 1.6s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .loading h3 { font-size: 18px; color: rgba(232,213,163,0.6); margin-bottom: 6px; }
+    .loading p { font-size: 12px; color: rgba(255,255,255,0.2); }
+
+    /* RESULTS SUMMARY */
+    .summary-card {
+      background: rgba(232,213,163,0.06);
+      border: 1px solid rgba(232,213,163,0.16);
+      border-radius: 14px; padding: 16px 20px; margin-bottom: 18px;
+    }
+    .summary-room { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--dk-gold); margin-bottom: 5px; }
+    .summary-text { font-size: 14px; line-height: 1.8; color: rgba(240,236,224,0.8); }
+
+    /* TABS */
+    .tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+    .tab-btn {
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 9px; padding: 9px 14px;
+      font-family: 'Lato', sans-serif; font-size: 13px;
+      color: var(--muted); cursor: pointer;
+      -webkit-appearance: none; transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--gold), var(--dk-gold));
+      color: #1a1000; border-color: transparent; font-weight: 700;
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px;
+      margin-bottom: 12px;
+    }
+    .card-row { display: flex; gap: 14px; align-items: flex-start; }
+    .card-emoji { font-size: 36px; flex-shrink: 0; }
+    .card-body { flex: 1; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--gold); margin-bottom: 4px; }
+    .card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .badge {
+      border-radius: 5px; padding: 2px 9px; font-size: 11px;
+    }
+    .badge-gold { background: rgba(232,213,163,0.1); color: var(--gold); }
+    .badge-easy { background: rgba(74,222,128,0.15); color: var(--green); }
+    .badge-medium { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .badge-hard { background: rgba(248,113,113,0.15); color: var(--red); }
+    .card-desc { font-size: 13px; line-height: 1.75; color: rgba(240,236,224,0.7); }
+    .card-budget { font-size: 12px; color: var(--dk-gold); margin-top: 8px; }
+
+    /* SUPPLY CARD */
+    .supply-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); }
+    .supply-cost { font-size: 12px; color: var(--green); }
+    .supply-why { font-size: 12px; color: var(--muted); margin: 6px 0 12px; line-height: 1.6; }
+    .store-links { display: flex; gap: 7px; flex-wrap: wrap; }
+    .store-link {
+      border-radius: 7px; padding: 6px 12px;
+      font-size: 12px; font-weight: 700; text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .store-hd { background: rgba(249,115,22,0.12); border: 1px solid rgba(249,115,22,0.3); color: #f97316; }
+    .store-lw { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #3b82f6; }
+    .store-amz { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #f59e0b; }
+
+    /* PLAN CARD */
+    .plan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    .plan-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .plan-icon { font-size: 32px; text-align: center; }
+    .plan-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); text-align: center; }
+    .plan-desc { font-size: 12px; color: var(--muted); text-align: center; }
+    .plan-pages { font-size: 11px; color: rgba(255,255,255,0.25); text-align: center; }
+    .plan-includes { border-top: 1px solid var(--border); padding-top: 10px; }
+    .plan-includes-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--dk-gold); margin-bottom: 7px; }
+    .plan-item { font-size: 12px; color: rgba(240,236,224,0.68); margin-bottom: 4px; display: flex; gap: 6px; }
+    .check { color: var(--green); }
+    .btn-download {
+      margin-top: auto; background: rgba(232,213,163,0.08);
+      border: 1px solid rgba(232,213,163,0.25); border-radius: 9px;
+      padding: 10px; color: var(--gold);
+      font-family: 'Lato', sans-serif; font-size: 13px;
+      font-weight: 700; cursor: pointer; width: 100%;
+      -webkit-appearance: none;
+    }
+    .btn-download:active { opacity: 0.7; }
+
+    /* CONTRACTOR */
+    .contractor-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px 16px;
+      display: flex; justify-content: space-between;
+      align-items: center; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .contractor-left { display: flex; gap: 12px; align-items: center; }
+    .contractor-avatar {
+      font-size: 28px; width: 46px; height: 46px;
+      background: rgba(232,213,163,0.07); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .contractor-name { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--gold); }
+    .contractor-specialty { font-size: 11px; color: rgba(255,255,255,0.38); margin-top: 2px; }
+    .contractor-meta { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; align-items: center; }
+    .stars { font-size: 12px; color: var(--yellow); }
+    .contractor-reviews { font-size: 11px; color: rgba(255,255,255,0.25); }
+    .contractor-dist { font-size: 11px; color: rgba(255,255,255,0.3); }
+    .contractor-btns { display: flex; gap: 7px; }
+    .btn-call {
+      background: rgba(74,222,128,0.09); border: 1px solid rgba(74,222,128,0.26);
+      border-radius: 7px; padding: 7px 12px; color: var(--green);
+      font-size: 12px; font-weight: 700; text-decoration: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-quote {
+      background: linear-gradient(135deg, var(--gold), var(--dk-gold));
+      border: none; border-radius: 7px; padding: 7px 12px;
+      color: #1a1000; font-size: 12px; font-weight: 700;
+      cursor: pointer; font-family: 'Lato', sans-serif;
+      -webkit-appearance: none;
+    }
+
+    /* EMPTY STATE */
+    .empty { text-align: center; padding: 48px 0; }
+    .empty-icon { font-size: 56px; margin-bottom: 14px; display: block; }
+    .empty h3 { font-size: 17px; color: rgba(232,213,163,0.38); margin-bottom: 6px; }
+    .empty p { font-size: 12px; color: rgba(255,255,255,0.18); line-height: 1.7; }
+
+    /* HIDDEN */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">🏠</div>
+    <div>
+      <div class="header-title">Doit2it</div>
+      <div class="header-sub">AI Home Improvement Studio</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- INPUT CARD -->
+    <div class="input-card">
+      <div class="section-label">📷 Optional — upload a photo of your room</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" accept="image/*" id="fileInput" />
+        <span class="upload-icon" id="uploadIcon">📷</span>
+        <span class="upload-text" id="uploadText">Tap to add a photo</span>
+        <img id="previewImg" class="hidden" alt="room preview" />
+        <span id="uploadBadge" class="upload-badge hidden">✓ Photo added · tap to change</span>
+      </div>
+
+      <div class="section-label" style="margin-top:4px">✏️ Describe your space & what you want to change</div>
+      <textarea id="promptInput" rows="4"
+        placeholder="e.g. 'I have a small outdated kitchen with white cabinets and old appliances. I want a modern farmhouse style update on a $2,000 budget.'"></textarea>
+
+      <button class="btn-generate" id="generateBtn" onclick="analyze()" disabled>
+        ✨ Generate My Home Improvement Plan
+      </button>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alert alert-error hidden" id="errorBox"></div>
+
+    <!-- LOADING -->
+    <div class="loading hidden" id="loadingBox">
+      <span class="loading-icon">🏡</span>
+      <h3>Designing your space…</h3>
+      <p>Building design ideas, supply lists & plans</p>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="resultsBox" class="hidden">
+      <div class="summary-card">
+        <div class="summary-room" id="roomLabel"></div>
+        <div class="summary-text" id="summaryText"></div>
+      </div>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="setTab(0)">🎨 Design Ideas</button>
+        <button class="tab-btn" onclick="setTab(1)">🛒 Buy Supplies</button>
+        <button class="tab-btn" onclick="setTab(2)">📐 Building Plans</button>
+        <button class="tab-btn" onclick="setTab(3)">👷 Hire a Pro</button>
+      </div>
+
+      <div id="tab0"></div>
+      <div id="tab1" class="hidden"></div>
+      <div id="tab2" class="hidden"></div>
+      <div id="tab3" class="hidden"></div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty" id="emptyBox">
+      <span class="empty-icon">🏡</span>
+      <h3>Describe your room to get started</h3>
+      <p>AI will generate personalized design ideas,<br>supply lists, building plans & contractor options</p>
+    </div>
+
+  </div>
+
+  <script>
+    const contractors = [
+      { name: "BuildRight Pros", specialty: "Full Renovations", rating: 4.9, reviews: 312, distance: "2.1 mi", phone: "(555) 210-4400", avatar: "🏗️" },
+      { name: "Kitchen & Bath Co.", specialty: "Kitchen & Bathroom", rating: 4.8, reviews: 218, distance: "3.5 mi", phone: "(555) 332-8812", avatar: "🚿" },
+      { name: "Deck Masters", specialty: "Outdoor & Decking", rating: 4.7, reviews: 145, distance: "4.8 mi", phone: "(555) 901-2256", avatar: "🌿" },
+      { name: "Electric & More", specialty: "Electrical & Lighting", rating: 5.0, reviews: 89, distance: "1.3 mi", phone: "(555) 477-0033", avatar: "💡" },
+      { name: "PaintWorks Studio", specialty: "Interior Painting", rating: 4.6, reviews: 403, distance: "0.9 mi", phone: "(555) 623-7741", avatar: "🎨" },
+      { name: "FloorPro Solutions", specialty: "Flooring & Tile", rating: 4.8, reviews: 176, distance: "3.0 mi", phone: "(555) 544-9921", avatar: "🪵" },
+    ];
+
+    let currentTab = 0;
+    let resultData = null;
+
+    // File upload
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        const img = document.getElementById('previewImg');
+        img.src = ev.target.result;
+        img.classList.remove('hidden');
+        document.getElementById('uploadIcon').classList.add('hidden');
+        document.getElementById('uploadText').classList.add('hidden');
+        document.getElementById('uploadBadge').classList.remove('hidden');
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    });
+
+    // Enable button when text entered
+    document.getElementById('promptInput').addEventListener('input', function() {
+      document.getElementById('generateBtn').disabled = !this.value.trim();
+    });
+
+    function setTab(i) {
+      document.querySelectorAll('.tab-btn').forEach((b, idx) => {
+        b.classList.toggle('active', idx === i);
+      });
+      [0,1,2,3].forEach(idx => {
+        document.getElementById('tab' + idx).classList.toggle('hidden', idx !== i);
+      });
+      currentTab = i;
+    }
+
+    function diffBadge(d) {
+      const cls = d === 'Easy' ? 'badge-easy' : d === 'Medium' ? 'badge-medium' : 'badge-hard';
+      return `<span class="badge ${cls}">${d}</span>`;
+    }
+
+    function renderResults(data) {
+      resultData = data;
+
+      document.getElementById('roomLabel').textContent = 'Room · ' + (data.roomType || '');
+      document.getElementById('summaryText').textContent = data.summary || '';
+
+      // Design Ideas
+      const d0 = document.getElementById('tab0');
+      d0.innerHTML = (data.designs || []).map(d => `
+        <div class="card">
+          <div class="card-row">
+            <div class="card-emoji">${d.emoji}</div>
+            <div class="card-body">
+              <div class="card-title">${d.title}</div>
+              <div class="card-meta">
+                <span class="badge badge-gold">${d.style}</span>
+                ${diffBadge(d.difficulty)}
+              </div>
+              <div class="card-desc">${d.description}</div>
+              <div class="card-budget">💰 ${d.budget}</div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Supplies
+      const d1 = document.getElementById('tab1');
+      d1.innerHTML = (data.supplies || []).map(s => `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;margin-bottom:4px">
+            <div class="supply-title">${s.item}</div>
+            <div class="supply-cost">${s.estimatedCost}</div>
+          </div>
+          <div class="supply-why">${s.why}</div>
+          <div class="store-links">
+            <a class="store-link store-hd" href="https://www.homedepot.com/s/${encodeURIComponent(s.homedepot)}" target="_blank" rel="noreferrer">Home Depot →</a>
+            <a class="store-link store-lw" href="https://www.lowes.com/search?searchTerm=${encodeURIComponent(s.lowes)}" target="_blank" rel="noreferrer">Lowe's →</a>
+            <a class="store-link store-amz" href="https://www.amazon.com/s?k=${encodeURIComponent(s.amazon)}" target="_blank" rel="noreferrer">Amazon →</a>
+          </div>
+        </div>
+      `).join('');
+
+      // Plans
+      const d2 = document.getElementById('tab2');
+      d2.innerHTML = `<div class="plan-grid">${(data.plans || []).map((p, i) => `
+        <div class="plan-card">
+          <div class="plan-icon">📐</div>
+          <div class="plan-title">${p.title}</div>
+          <div class="plan-desc">${p.description}</div>
+          <div class="plan-pages">${p.pages}</div>
+          <div class="plan-includes">
+            <div class="plan-includes-label">Includes:</div>
+            ${(p.includes || []).map(item => `<div class="plan-item"><span class="check">✓</span>${item}</div>`).join('')}
+          </div>
+          <button class="btn-download" onclick="downloadPlan(${i})">⬇️ Download Plan</button>
+        </div>
+      `).join('')}</div>`;
+
+      // Contractors
+      const d3 = document.getElementById('tab3');
+      d3.innerHTML = `
+        <p style="font-size:12px;color:rgba(255,255,255,0.28);font-style:italic;margin-bottom:12px">Sample contractors — connect with verified professionals near you</p>
+        ${contractors.map(c => `
+          <div class="contractor-card">
+            <div class="contractor-left">
+              <div class="contractor-avatar">${c.avatar}</div>
+              <div>
+                <div class="contractor-name">${c.name}</div>
+                <div class="contractor-specialty">${c.specialty}</div>
+                <div class="contractor-meta">
+                  <span class="stars">${'★'.repeat(Math.floor(c.rating))} ${c.rating}</span>
+                  <span class="contractor-reviews">(${c.reviews})</span>
+                  <span class="contractor-dist">📍 ${c.distance}</span>
+                </div>
+              </div>
+            </div>
+            <div class="contractor-btns">
+              <a class="btn-call" href="tel:${c.phone}">📞 Call</a>
+              <button class="btn-quote">Get Quote</button>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function downloadPlan(i) {
+      if (!resultData) return;
+      const p = resultData.plans[i];
+      const lines = [
+        'HOME IMPROVEMENT BUILDING PLAN',
+        '================================',
+        p.title, p.description, '',
+        'Pages: ' + p.pages, '', 'INCLUDED:',
+        ...(p.includes || []).map((x, j) => `  ${j+1}. ${x}`),
+        '', '================================',
+        'Generated by Doit2it',
+        'Date: ' + new Date().toLocaleDateString(), '',
+        'DISCLAIMER: AI-generated suggestions.',
+        'Always consult a licensed contractor before starting work.',
+      ];
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain' }));
+      a.download = (p.title || 'Plan').replace(/\s+/g, '_') + '_Plan.txt';
+      a.click();
+    }
+
+    async function analyze() {
+      const prompt = document.getElementById('promptInput').value.trim();
+      if (!prompt) return;
+
+      document.getElementById('emptyBox').classList.add('hidden');
+      document.getElementById('resultsBox').classList.add('hidden');
+      document.getElementById('errorBox').classList.add('hidden');
+      document.getElementById('loadingBox').classList.remove('hidden');
+      document.getElementById('generateBtn').disabled = true;
+
+      const system = `You are an expert home improvement designer and contractor.
+Return ONLY a valid raw JSON object — no markdown, no code fences, no text before or after.
+Structure:
+{"roomType":"string","summary":"string","designs":[{"title":"","description":"","style":"","budget":"","difficulty":"Easy","emoji":"🛋️"},{"title":"","description":"","style":"","budget":"","difficulty":"Medium","emoji":"🪟"},{"title":"","description":"","style":"","budget":"","difficulty":"Hard","emoji":"🏠"}],"supplies":[{"item":"","why":"","estimatedCost":"","homedepot":"","lowes":"","amazon":""},{"item":"","why":"","estimatedCost":"","homedepot":"","lowes":"","amazon":""},{"item":"","why":"","estimatedCost":"","homedepot":"","lowes":"","amazon":""},{"item":"","why":"","estimatedCost":"","homedepot":"","lowes":"","amazon":""},{"item":"","why":"","estimatedCost":"","homedepot":"","lowes":"","amazon":""}],"plans":[{"title":"","description":"","pages":"3 pages","includes":["","","",""]},{"title":"","description":"","pages":"4 pages","includes":["","","",""]}]}`;
+
+      try {
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ system: system, prompt: prompt }),
+        });
+
+        if (!res.ok) {
+          const t = await res.text();
+          throw new Error('API error ' + res.status + ': ' + t.slice(0, 120));
+        }
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        const raw = (data.text || '').trim();
+        const clean = raw.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/```\s*$/i,'').trim();
+        const parsed = JSON.parse(clean);
+
+        renderResults(parsed);
+        setTab(0);
+        document.getElementById('resultsBox').classList.remove('hidden');
+
+      } catch (err) {
+        const box = document.getElementById('errorBox');
+        box.textContent = '⚠️ ' + err.message;
+        box.classList.remove('hidden');
+      }
+
+      document.getElementById('loadingBox').classList.add('hidden');
+      document.getElementById('generateBtn').disabled = false;
+    }
+  </script>
+</body>
+</html>
